@@ -7,3 +7,4 @@ db.sqlite3
 hoang_ha_mobile/.env
 *migrations
 hoang_ha_mobile/media/images/
+pyvenv.cfg

@@ -12,6 +12,7 @@ STATUS_CHOICES = [
     ("delivered", "delivered"),
     ("canceled", "canceled"),
 ]
+
 class Order(models.Model):
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=10)

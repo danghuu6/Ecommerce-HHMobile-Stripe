@@ -56,4 +56,6 @@ urlpatterns = [
     path('admin/comments/', include('comments.administrator.urls')),
     path('customer/comments/', include('comments.customer.urls')),
     path('comments/', include('comments.guest.urls')),
+
+    path('payments/stripe/', include('payment.stripe.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

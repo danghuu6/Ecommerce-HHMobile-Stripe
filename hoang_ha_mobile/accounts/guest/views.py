@@ -27,7 +27,7 @@ class LoginApiView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
-        request.data['email'] = request.data.get('email').lower()
+        request.data['email'] = request.data.get('email')
         return super().post(request, *args, **kwargs)
 
 

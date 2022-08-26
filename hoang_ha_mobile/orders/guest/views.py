@@ -15,7 +15,7 @@ class CreateOrderApiView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         self.queryset = Order.objects.filter(
-            email=self.request.query_params.get('email').lower()).prefetch_related()
+            email=self.request.query_params.get('email')).prefetch_related()
         return super().get_queryset()
 
     def get_serializer(self, *args, **kwargs):

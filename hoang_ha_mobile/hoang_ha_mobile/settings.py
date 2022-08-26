@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'orders',
     'products',
     'variants',
+    'transactions',
     'rest_framework_simplejwt.token_blacklist',
 ]
 
@@ -196,9 +197,20 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
 }
 
+
+CORS_ALLOWED_ORIGINS=[
+    'http://localhost:3000'
+]
+SITE_URL='http://localhost:3000/'
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST')
 EMAIL_HOST_PASSWORD = os.getenv('PASSWORD_APP')
+
+
+STRIPE_PUBLIC_KEY="pk_test_51LXILOJvtSsB9DmYuFrN6SaNZ93sW2Dt7PhPxAGBliYNOEP3uOupCwi4fiTq7gjOpHFFH9YL98mdbFtF1rvXqanT00zQuw7o3E"
+STRIPE_SECRET_KEY="sk_test_51LXILOJvtSsB9DmY807yqCiAQ3EzpKLd62eSU2G9AmbYiSTnGv8MN7Eb368nRPmD3sw2SEkJdYZZZ7mImkgn3I5T00Br7ykapJ"
+STRIPE_SECRET_WEBHOOK="whsec_0a6f301d7006fc877de036a23c627315a923a821df0046efa763b95a64ad5db1"
