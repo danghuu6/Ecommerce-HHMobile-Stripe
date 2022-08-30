@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+from firebase_admin import initialize_app
 
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -214,3 +215,18 @@ EMAIL_HOST_PASSWORD = os.getenv('PASSWORD_APP')
 STRIPE_PUBLIC_KEY="pk_test_51LXILOJvtSsB9DmYuFrN6SaNZ93sW2Dt7PhPxAGBliYNOEP3uOupCwi4fiTq7gjOpHFFH9YL98mdbFtF1rvXqanT00zQuw7o3E"
 STRIPE_SECRET_KEY="sk_test_51LXILOJvtSsB9DmY807yqCiAQ3EzpKLd62eSU2G9AmbYiSTnGv8MN7Eb368nRPmD3sw2SEkJdYZZZ7mImkgn3I5T00Br7ykapJ"
 STRIPE_SECRET_WEBHOOK="whsec_0a6f301d7006fc877de036a23c627315a923a821df0046efa763b95a64ad5db1"
+
+
+FIREBASE_APP = initialize_app()
+
+FCM_DJANGO_SETTINGS = {
+     # default: _('FCM Django')
+    "APP_VERBOSE_NAME": "[string for AppConfig's verbose_name]",
+     # true if you want to have only one active device per registered user at a time
+     # default: False
+    "ONE_DEVICE_PER_USER": True,
+     # devices to which notifications cannot be sent,
+     # are deleted upon receiving error response from FCM
+     # default: False
+    "DELETE_INACTIVE_DEVICES": False,
+}

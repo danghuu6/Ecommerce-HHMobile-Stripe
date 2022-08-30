@@ -6,11 +6,7 @@ from hoang_ha_mobile.base.errors import check_valid_item
 
 from . import serializers
 from .. import models
-import stripe
-from django.conf import settings
-
-
-stripe.api_key=settings.STRIPE_SECRET_KEY
+from hoang_ha_mobile.base import stripe_base
 
 
 class ListCreateOrderAPIView(generics.ListCreateAPIView):
@@ -53,50 +49,19 @@ class ListCreateOrderAPIView(generics.ListCreateAPIView):
                     serializer.save()
 
             try:
-                cus = stripe.Customer.search(
-                    query="email~'%s'" % str(self.request.user.email),
-                )
-                if len(cus['data']) <= 0:
-                    cus = stripe.Customer.create(
-                        email = self.request.user.email
-                    )
-                elif len(cus['data']) >= 1:
-                    cus = cus['data'][0]
+                cus = stripe_base.search_and_create_customer(self.request.user.email)
 
-                intent = stripe.PaymentIntent.create(
-                    customer = cus['id'],
-                   amount = int(instance_price),
-                   currency = 'vnd',
-                   payment_method_types=["card"],
-                   metadata = {
-                        'order_id': self.instance.id
-                   }
-                )
+                intent = stripe_base.payment_intent_create(instance_price, "vnd", self.instance.id, customer=cus['id'])
+
                 self.instance.total = instance_price
                 self.instance.save()
                 serializer = serializers.OrderSerializer(self.instance)
 
-                return response.Response({'client_secret': intent['client_secret']},
+                return response.Response({'client_secret': intent['client_secret'],
+                                        'order_id': intent.metadata['order_id']},
                                         status=status.HTTP_201_CREATED)
             except Exception as e:
                 return response.Response({'error':str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
         else:
             return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # @action(methods=['post'], detail=True, url_path="checkout-intent")
-    # def checkout(self, request, pk):
-    #     try:
-    #         search_pi = stripe.PaymentIntent.search(
-    #             query = "metadata['order_id']: '%s'" % pk,
-    #         )
-            
-    #         checkout_intent = stripe.PaymentIntent.confirm(
-    #             search_pi['data'][0]['id'],
-    #             payment_method="pm_card_visa",
-    #         )
-
-    #         return response.Response({'client_secret': checkout_intent['client_secret']},
-    #                                 status=status.HTTP_200_OK)
-    #     except Exception as e:
-    #         return response.Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

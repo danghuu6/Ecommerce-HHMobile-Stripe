@@ -9,6 +9,8 @@ from hoang_ha_mobile.base.errors import check_valid_item
 from .serializers import OrderSerializer, OrderDetailSerializer, ListOrderSerializer
 from ..models import Order
 
+from hoang_ha_mobile.base import stripe_base
+import stripe
 
 class CreateOrderApiView(generics.ListCreateAPIView):
     serializer_class = OrderSerializer
@@ -24,6 +26,8 @@ class CreateOrderApiView(generics.ListCreateAPIView):
         return ListOrderSerializer(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        payment_method = self.request.data.get("payment_method")
+
         request.data['order']['email'] = request.data['order'].get(
             'email').lower()
 
@@ -54,10 +58,29 @@ class CreateOrderApiView(generics.ListCreateAPIView):
                 serializer = OrderDetailSerializer(data=data_save)
                 if(serializer.is_valid()):
                     serializer.save()
-            self.instance.total = total
-            self.instance.save()
-            serializer = self.get_serializer(self.instance)
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                # Create paymentIntent & Charge
+                intent = stripe_base.payment_intent_create(total, "vnd", self.instance.id)
+
+                charge = stripe_base.payment_intent_confirm(payment_method, intent['id'])
+
+                self.instance.total = total
+                self.instance.save()
+                serializer = self.get_serializer(self.instance)
+                
+                return Response({'status_order':charge['status']},
+                                            status=status.HTTP_201_CREATED)
+            except stripe.error.CardError as e:
+                return Response({'message': e.user_message}, 
+                                status=status.HTTP_200_OK)
+
+            except stripe.error.InvalidRequestError as e:
+                return Response({'message': e.user_message}, 
+                                status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({'error':str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         else:
             return Response(serializer.errors)
 

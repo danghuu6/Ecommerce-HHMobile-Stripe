@@ -13,6 +13,12 @@ STATUS_CHOICES = [
     ("canceled", "canceled"),
 ]
 
+CHARGE_STATUS_CHOICES = [
+    ("incomplete", "incomplete"),
+    ("succeeded", "succeeded"),
+    ("failed", "failed")
+]
+
 class Order(models.Model):
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=10)
@@ -28,6 +34,7 @@ class Order(models.Model):
     updated_by = models.ForeignKey(User, on_delete=models.SET_NULL,related_name ="order_updated", blank=True, null=True)
     deleted_at = models.DateTimeField(blank=True,null=True)
     deleted_by = models.ForeignKey(User, on_delete=models.SET_NULL,related_name ="order_deleted", blank=True, null=True)
+    charge_status = models.CharField(max_length=255, choices=CHARGE_STATUS_CHOICES, default='incomplete')
 
     class Meta:
         db_table = 'orders' 
