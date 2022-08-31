@@ -48,6 +48,7 @@ class OrderReadSerializer(serializers.ModelSerializer):
             'delivery_address',
             'note',
             'status',
+            'charge_status',
             'total',
             'number_product',
             'created_at',

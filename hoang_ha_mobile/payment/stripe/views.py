@@ -1,3 +1,4 @@
+from ast import Or
 from rest_framework import generics, permissions, response, status, viewsets
 from rest_framework_simplejwt import authentication
 from rest_framework.decorators import action
@@ -6,6 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 
 from hoang_ha_mobile.base import stripe_base
+from orders.serializers import UpdateChargeStatusSerializer
+from orders.models import Order
 
 
 class ListCreateSetupIntentViewSet(viewsets.ViewSet, generics.ListCreateAPIView):
@@ -63,9 +66,18 @@ def webhook(request):
 
     event = stripe_base.webhook(payload, signature)
 
-    if event.type == 'payment_intent.created':
+    if event.type == 'charge.succeeded':
         charge = event.data.object
-        print(charge)
+        order = Order.objects.get(id=charge.metadata.order_id)
+        serializer = UpdateChargeStatusSerializer(order, data={"charge_status": "succeeded"})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        
+    if event.type == 'charge.failed':
+        charge = event.data.object
+        order = Order.objects.get(id=charge.metadata.order_id)
+        serializer = UpdateChargeStatusSerializer(order, data={"charge_status": "failed"})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
     return HttpResponse(status=200)
